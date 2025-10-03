@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "backend/realTimeServer.js",
+      "src": "backend/vercel-server.js",
       "use": "@vercel/node"
     },
     {
@@ -13,11 +13,21 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/backend/realTimeServer.js"
+      "dest": "/backend/vercel-server.js"
+    },
+    {
+      "src": "/admin",
+      "dest": "/backend/vercel-server.js"
     },
     {
       "src": "/(.*)",
       "dest": "/public/$1"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/admin",
+      "destination": "/admin.html"
     }
   ]
 }

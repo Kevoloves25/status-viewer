@@ -327,7 +327,7 @@ class StatusBoostApp {
 
     joinWhatsAppGroup() {
         // Replace with your actual WhatsApp group link
-        const groupLink = 'https://chat.whatsapp.com/YOUR_ACTUAL_GROUP_LINK';
+        const groupLink = 'https://chat.whatsapp.com/KtqoEZY7kLWBp7oMvbupks';
         window.open(groupLink, '_blank');
     }
 }

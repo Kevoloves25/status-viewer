@@ -1,8 +1,11 @@
 class StatusBoostApp {
     constructor() {
-        this.registeredUsers = 2847;
-        this.slotsLeft = 143;
-        this.registrationEndTime = Date.now() + (24 * 60 * 60 * 1000); // 24 hours from now
+        // Initialize with values that can be controlled by admin
+        this.registeredUsers = window.adminStats ? window.adminStats.registeredUsers : 2847;
+        this.slotsLeft = window.adminStats ? window.adminStats.slotsLeft : 143;
+        this.registrationEndTime = window.adminStats ? window.adminStats.registrationEndTime : (Date.now() + (24 * 60 * 60 * 1000));
+        this.isRegistrationOpen = true;
+        
         this.init();
     }
 
@@ -11,31 +14,47 @@ class StatusBoostApp {
         this.startStatsAnimation();
         this.setupEventListeners();
         this.checkRegistrationStatus();
+        this.setupAdminSync();
+    }
+
+    setupAdminSync() {
+        // Create global object for admin to control
+        window.adminStats = {
+            registeredUsers: this.registeredUsers,
+            slotsLeft: this.slotsLeft,
+            registrationEndTime: this.registrationEndTime,
+            isRegistrationOpen: this.isRegistrationOpen,
+            updateFrontend: () => this.updateFromAdmin()
+        };
+    }
+
+    updateFromAdmin() {
+        if (window.adminStats) {
+            this.registeredUsers = window.adminStats.registeredUsers;
+            this.slotsLeft = window.adminStats.slotsLeft;
+            this.registrationEndTime = window.adminStats.registrationEndTime;
+            this.isRegistrationOpen = window.adminStats.isRegistrationOpen;
+            
+            this.animateCounter('registeredUsers', this.registeredUsers);
+            this.animateCounter('slotsLeft', this.slotsLeft);
+            this.updateProgressBar();
+            
+            if (!this.isRegistrationOpen) {
+                this.disableRegistration();
+            }
+        }
     }
 
     updateLiveStats() {
-        // Update registered users count with random increments
-        setInterval(() => {
-            if (this.slotsLeft > 0) {
-                const newUsers = Math.floor(Math.random() * 3); // 0-2 new users
-                this.registeredUsers += newUsers;
-                this.slotsLeft = Math.max(0, this.slotsLeft - newUsers);
-                
-                this.animateCounter('registeredUsers', this.registeredUsers);
-                this.animateCounter('slotsLeft', this.slotsLeft);
-                this.updateProgressBar();
-                
-                // Show counter animation
-                if (newUsers > 0) {
-                    this.showCounterAnimation(newUsers);
-                }
-            }
-        }, 5000); // Update every 5 seconds
-
         // Update registration timer every second
         setInterval(() => {
             this.updateRegistrationTimer();
         }, 1000);
+
+        // Sync with admin changes every 2 seconds
+        setInterval(() => {
+            this.updateFromAdmin();
+        }, 2000);
     }
 
     animateCounter(elementId, newValue) {
@@ -43,13 +62,9 @@ class StatusBoostApp {
         if (element) {
             const oldValue = parseInt(element.textContent.replace(/,/g, ''));
             if (oldValue !== newValue) {
-                // Add animation class
                 element.classList.add('counting');
-                
-                // Format number with commas
                 element.textContent = newValue.toLocaleString();
                 
-                // Remove animation class after animation
                 setTimeout(() => {
                     element.classList.remove('counting');
                 }, 1000);
@@ -73,7 +88,6 @@ class StatusBoostApp {
             registeredElement.style.position = 'relative';
             registeredElement.appendChild(counterChange);
             
-            // Remove after animation
             setTimeout(() => {
                 if (counterChange.parentNode) {
                     counterChange.parentNode.removeChild(counterChange);
@@ -89,6 +103,7 @@ class StatusBoostApp {
         if (remaining <= 0) {
             document.getElementById('registrationTimer').textContent = 'CLOSED!';
             document.getElementById('registrationTimer').style.color = '#ff0000';
+            this.isRegistrationOpen = false;
             this.disableRegistration();
             return;
         }
@@ -118,11 +133,17 @@ class StatusBoostApp {
     }
 
     startStatsAnimation() {
-        // Randomly update stats for live effect
+        // Only animate if admin hasn't taken control
         setInterval(() => {
-            if (this.slotsLeft > 0 && Math.random() < 0.3) {
+            if (this.slotsLeft > 0 && this.isRegistrationOpen && Math.random() < 0.3) {
                 this.registeredUsers += 1;
                 this.slotsLeft -= 1;
+                
+                // Update admin stats if exists
+                if (window.adminStats) {
+                    window.adminStats.registeredUsers = this.registeredUsers;
+                    window.adminStats.slotsLeft = this.slotsLeft;
+                }
                 
                 this.animateCounter('registeredUsers', this.registeredUsers);
                 this.animateCounter('slotsLeft', this.slotsLeft);
@@ -133,13 +154,15 @@ class StatusBoostApp {
     }
 
     checkRegistrationStatus() {
-        if (this.slotsLeft <= 0 || Date.now() >= this.registrationEndTime) {
+        if (this.slotsLeft <= 0 || !this.isRegistrationOpen) {
             this.disableRegistration();
         }
     }
 
     disableRegistration() {
         const form = document.getElementById('registerForm');
+        if (!form) return;
+        
         const button = form.querySelector('button');
         const inputs = form.querySelectorAll('input');
         
@@ -153,23 +176,44 @@ class StatusBoostApp {
             input.placeholder = 'Registration Closed';
         });
         
-        // Add closed banner
-        const urgencyBanner = document.createElement('div');
-        urgencyBanner.className = 'urgency-banner';
-        urgencyBanner.innerHTML = '<div class="urgency-text">🚫 REGISTRATION CLOSED - All Slots Filled!</div>';
-        form.parentNode.insertBefore(urgencyBanner, form);
+        // Add closed banner if not already exists
+        if (!document.querySelector('.urgency-banner')) {
+            const urgencyBanner = document.createElement('div');
+            urgencyBanner.className = 'urgency-banner';
+            urgencyBanner.innerHTML = '<div class="urgency-text">🚫 REGISTRATION CLOSED - All Slots Filled!</div>';
+            form.parentNode.insertBefore(urgencyBanner, form);
+        }
     }
 
     setupEventListeners() {
         const form = document.getElementById('registerForm');
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.handleRegistration();
-        });
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleRegistration();
+            });
+        }
+
+        // Download button event
+        const downloadBtn = document.getElementById('downloadBtn');
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', () => {
+                this.handleDownload();
+            });
+        }
+
+        // WhatsApp group link
+        const whatsappLink = document.getElementById('whatsappLink');
+        if (whatsappLink) {
+            whatsappLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.joinWhatsAppGroup();
+            });
+        }
     }
 
     handleRegistration() {
-        if (this.slotsLeft <= 0) {
+        if (!this.isRegistrationOpen || this.slotsLeft <= 0) {
             alert('Sorry, all slots have been filled!');
             return;
         }
@@ -193,6 +237,8 @@ class StatusBoostApp {
 
     showError(message) {
         const button = document.querySelector('.glow-button');
+        if (!button) return;
+        
         const originalText = button.innerHTML;
         
         button.innerHTML = `❌ ${message}`;
@@ -209,6 +255,8 @@ class StatusBoostApp {
     registerUser(phone, name) {
         // Show loading state
         const button = document.querySelector('.glow-button');
+        if (!button) return;
+        
         const originalText = button.querySelector('.btn-text').textContent;
         button.querySelector('.btn-text').textContent = 'Activating...';
         button.disabled = true;
@@ -226,14 +274,26 @@ class StatusBoostApp {
                 // Update stats
                 this.registeredUsers += 1;
                 this.slotsLeft -= 1;
+                
+                // Update admin stats
+                if (window.adminStats) {
+                    window.adminStats.registeredUsers = this.registeredUsers;
+                    window.adminStats.slotsLeft = this.slotsLeft;
+                }
+                
                 this.animateCounter('registeredUsers', this.registeredUsers);
                 this.animateCounter('slotsLeft', this.slotsLeft);
                 this.updateProgressBar();
                 
                 // Start user's timer
-                statusTimer.start(phone);
-                showTimerSection();
-                updateCountdownDisplay();
+                if (window.statusTimer) {
+                    window.statusTimer.start(phone);
+                    showTimerSection();
+                    updateCountdownDisplay();
+                }
+                
+                // Show success message
+                this.showSuccess('Registration successful! Timer started.');
             } else {
                 this.showError('Registration failed. Please try again.');
             }
@@ -244,21 +304,41 @@ class StatusBoostApp {
         })
         .finally(() => {
             // Reset button
-            button.querySelector('.btn-text').textContent = originalText;
+            if (button.querySelector('.btn-text')) {
+                button.querySelector('.btn-text').textContent = originalText;
+            }
             button.disabled = false;
         });
+    }
+
+    showSuccess(message) {
+        // Could add a subtle success notification
+        console.log('Success:', message);
+    }
+
+    handleDownload() {
+        if (window.statusTimer && window.statusTimer.userPhone) {
+            const phone = window.statusTimer.userPhone;
+            window.open(`/api/download-vcf/${phone}`, '_blank');
+        } else {
+            alert('Please wait for your timer to complete first.');
+        }
+    }
+
+    joinWhatsAppGroup() {
+        // Replace with your actual WhatsApp group link
+        const groupLink = 'https://chat.whatsapp.com/YOUR_ACTUAL_GROUP_LINK';
+        window.open(groupLink, '_blank');
     }
 }
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', function() {
     window.statusBoostApp = new StatusBoostApp();
-    
-    // Update progress bar initially
     window.statusBoostApp.updateProgressBar();
 });
 
-// Existing section switching functions
+// Section management functions
 function showTimerSection() {
     document.getElementById('registrationSection').classList.remove('active');
     document.getElementById('registrationSection').classList.add('hidden');
@@ -277,12 +357,4 @@ function showDownloadSection() {
     if (window.wildAnimations) {
         window.wildAnimations.triggerCelebration();
     }
-    
-    // Setup download button
-    document.getElementById('downloadBtn').addEventListener('click', function() {
-        const phone = statusTimer.userPhone;
-        if (phone) {
-            window.open(`/api/download-vcf/${phone}`, '_blank');
-        }
-    });
 }

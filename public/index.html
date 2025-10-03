@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StatusBoost Pro 🚀 - Unofficial WhatsApp Booster</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Background Glow Effects -->
+        <div class="glow-orbit"></div>
+        <div class="glow-orbit"></div>
+        <div class="glow-orbit"></div>
+        
+        <!-- Main Card -->
+        <div class="main-card pulse-slow">
+            <div class="header">
+                <h1 class="glow-text">🚀 StatusBoost <span class="pro">Pro</span></h1>
+                <p class="subtitle">Unofficial WhatsApp Status Viewer Booster</p>
+            </div>
+
+            <!-- Registration Form -->
+            <div id="registrationSection" class="section active">
+                <div class="form-container">
+                    <h2 class="glow-text">Boost Your Status Views!</h2>
+                    <p class="description">Join thousands getting 500+ automatic views on every status</p>
+                    
+                    <form id="registerForm" class="glow-form">
+                        <div class="input-group">
+                            <input type="tel" id="phone" name="phone" 
+                                   placeholder="Your WhatsApp Number" 
+                                   pattern="[0-9+]{10,15}" required>
+                            <span class="input-glow"></span>
+                        </div>
+                        
+                        <div class="input-group">
+                            <input type="text" id="name" name="name" 
+                                   placeholder="Your Preferred Name" required>
+                            <span class="input-glow"></span>
+                        </div>
+                        
+                        <button type="submit" class="glow-button pulse">
+                            <span class="btn-text">Activate Status Boost</span>
+                            <div class="btn-glow"></div>
+                        </button>
+                    </form>
+                    
+                    <div class="disclaimer">
+                        <p>⚠️ Unofficial Service - Use at your own risk</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timer Section -->
+            <div id="timerSection" class="section hidden">
+                <div class="timer-container">
+                    <h2 class="glow-text">🔥 Boost Activated!</h2>
+                    <p>Your status views are being configured...</p>
+                    
+                    <div class="countdown">
+                        <div class="countdown-circle">
+                            <svg class="progress-ring" width="200" height="200">
+                                <circle class="progress-ring-background" cx="100" cy="100" r="90"></circle>
+                                <circle class="progress-ring-circle" cx="100" cy="100" r="90"></circle>
+                            </svg>
+                            <div class="countdown-text">
+                                <div id="countdownDisplay" class="time-display">48:00:00</div>
+                                <div class="time-label">Until Boost Ready</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="queue-info">
+                        <p>📊 <span id="queueCount">247</span> people ahead of you</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Download Section -->
+            <div id="downloadSection" class="section hidden">
+                <div class="download-container">
+                    <div class="success-animation">🎉</div>
+                    <h2 class="glow-text">Your Boost is Ready!</h2>
+                    <p>Download your contact file and get automatic status views</p>
+                    
+                    <button id="downloadBtn" class="glow-button success pulse">
+                        <span class="btn-text">📥 Download VCF File</span>
+                        <div class="btn-glow"></div>
+                    </button>
+                    
+                    <div class="whatsapp-group">
+                        <h3>Join Our WhatsApp Group</h3>
+                        <p>Get updates and connect with other users</p>
+                        <a href="#" id="whatsappLink" class="whatsapp-btn" target="_blank">
+                            📱 Join WhatsApp Group
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>StatusBoost Pro © 2024 - Unofficial Service</p>
+        </div>
+    </div>
+
+    <script src="js/timer.js"></script>
+    <script src="js/animations.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

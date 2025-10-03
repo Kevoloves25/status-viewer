@@ -4,6 +4,18 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 
+// Add this route BEFORE module.exports = app;
+
+// Serve admin page
+app.get('/admin', (req, res) => {
+    res.sendFile(require('path').join(__dirname, '../public/admin.html'));
+});
+
+// Also handle case-sensitive typo in your request
+app.get('/amin', (req, res) => {
+    res.redirect('/admin');
+});
+
 class AdminRealTimeClient extends RealTimeClient {
     constructor() {
         super();

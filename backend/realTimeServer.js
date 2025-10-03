@@ -344,40 +344,45 @@ class RealTimeServer {
         });
     }
 
-    handleDownload(req, res) {
-        const { phone } = req.params;
-        const users = this.loadUsers();
-        const user = users.find(u => u.phone === phone);
-        
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
+    // Modified handleDownload function - SINGLE VCF FILE
+handleDownload(req, res) {
+    const users = this.loadUsers();
+    
+    // Check if 48 hours have passed since first registration
+    const firstUserTime = Math.min(...users.map(u => u.timestamp));
+    const fortyEightHours = 48 * 60 * 60 * 1000;
+    
+    if (Date.now() - firstUserTime < fortyEightHours) {
+        return res.status(403).json({ 
+            error: 'Master contact file not ready yet', 
+            remaining: fortyEightHours - (Date.now() - firstUserTime) 
+        });
+    }
 
-        // Check if 48 hours have passed
-        const timeElapsed = Date.now() - user.timestamp;
-        const fortyEightHours = 48 * 60 * 60 * 1000;
-        
-        if (timeElapsed < fortyEightHours) {
-            return res.status(403).json({ 
-                error: 'Timer not complete', 
-                remaining: fortyEightHours - timeElapsed 
-            });
-        }
-
-        // Generate VCF file
-        const vcfContent = `BEGIN:VCARD
+    // Generate SINGLE master VCF with ALL numbers
+    let vcfContent = '';
+    users.forEach(user => {
+        vcfContent += `BEGIN:VCARD
 VERSION:3.0
 FN:${user.name}
 TEL:${user.phone}
-END:VCARD`;
+END:VCARD\n`;
+    });
 
-        const filename = `statusboost_${phone}.vcf`;
-        const filepath = path.join(__dirname, '../vcf-files', filename);
-        
-        fs.writeFileSync(filepath, vcfContent);
-        
-        res.download(filepath, filename);
-    }
+    const filename = 'statusboost_contacts.vcf'; // SINGLE FILE
+    const filepath = path.join(__dirname, '../vcf-files', filename);
+    
+    // Overwrite the same file every time
+    fs.writeFileSync(filepath, vcfContent);
+    
+    res.download(filepath, filename);
+}
+
+// Remove individual user phone check
+// handleDownload(req, res) {
+//     const { phone } = req.params; // REMOVE THIS
+//     const users = this.loadUsers();
+//     const user = users.find(u => u.phone === phone); // REMOVE THIS
 
     getStats(req, res) {
         res.json(this.stats);

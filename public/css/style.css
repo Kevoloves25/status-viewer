@@ -1,0 +1,346 @@
+:root {
+    --glow-red: #ff0033;
+    --glow-pink: #ff0066;
+    --dark-bg: #0a0a0a;
+    --card-bg: rgba(26, 0, 15, 0.8);
+    --text-glow: 0 0 10px var(--glow-red), 0 0 20px var(--glow-red);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--dark-bg);
+    color: white;
+    font-family: 'Arial', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.container {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Background Glow Orbits */
+.glow-orbit {
+    position: fixed;
+    border: 1px solid var(--glow-red);
+    border-radius: 50%;
+    animation: orbit 20s linear infinite;
+    box-shadow: 0 0 60px var(--glow-red);
+}
+
+.glow-orbit:nth-child(1) {
+    width: 300px;
+    height: 300px;
+    animation-duration: 25s;
+    top: 10%;
+    left: 10%;
+}
+
+.glow-orbit:nth-child(2) {
+    width: 500px;
+    height: 500px;
+    animation-duration: 35s;
+    bottom: 10%;
+    right: 10%;
+}
+
+.glow-orbit:nth-child(3) {
+    width: 200px;
+    height: 200px;
+    animation-duration: 15s;
+    top: 50%;
+    left: 80%;
+}
+
+/* Main Card */
+.main-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glow-red);
+    border-radius: 20px;
+    padding: 40px;
+    width: 100%;
+    max-width: 500px;
+    position: relative;
+    z-index: 10;
+    box-shadow: 0 0 50px rgba(255, 0, 51, 0.3);
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.glow-text {
+    color: white;
+    text-shadow: var(--text-glow);
+    font-size: 2.5em;
+    font-weight: bold;
+}
+
+.pro {
+    color: var(--glow-red);
+}
+
+.subtitle {
+    color: #ccc;
+    margin-top: 10px;
+}
+
+/* Sections */
+.section {
+    transition: all 0.5s ease;
+}
+
+.section.hidden {
+    display: none;
+}
+
+.section.active {
+    display: block;
+}
+
+/* Form Styles */
+.form-container {
+    text-align: center;
+}
+
+.description {
+    color: #ccc;
+    margin-bottom: 30px;
+    font-size: 1.1em;
+}
+
+.glow-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.input-group {
+    position: relative;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 0, 51, 0.3);
+    border-radius: 10px;
+    color: white;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: var(--glow-red);
+    box-shadow: 0 0 20px rgba(255, 0, 51, 0.5);
+}
+
+.input-glow {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--glow-red);
+    box-shadow: 0 0 10px var(--glow-red);
+    transition: width 0.3s ease;
+}
+
+.input-group input:focus + .input-glow {
+    width: 100%;
+}
+
+/* Button Styles */
+.glow-button {
+    position: relative;
+    background: linear-gradient(45deg, #ff0033, #ff0066);
+    border: none;
+    border-radius: 10px;
+    padding: 15px 30px;
+    color: white;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.glow-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(255, 0, 51, 0.6);
+}
+
+.glow-button.success {
+    background: linear-gradient(45deg, #00ff33, #00cc66);
+}
+
+.btn-glow {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.glow-button:hover .btn-glow {
+    left: 100%;
+}
+
+/* Timer Styles */
+.timer-container {
+    text-align: center;
+}
+
+.countdown {
+    display: flex;
+    justify-content: center;
+    margin: 30px 0;
+}
+
+.countdown-circle {
+    position: relative;
+    width: 200px;
+    height: 200px;
+}
+
+.progress-ring {
+    transform: rotate(-90deg);
+}
+
+.progress-ring-background {
+    fill: transparent;
+    stroke: rgba(255, 0, 51, 0.2);
+    stroke-width: 8;
+}
+
+.progress-ring-circle {
+    fill: transparent;
+    stroke: var(--glow-red);
+    stroke-width: 8;
+    stroke-dasharray: 565.48;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s ease;
+}
+
+.countdown-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.time-display {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: var(--glow-red);
+    text-shadow: var(--text-glow);
+}
+
+.time-label {
+    font-size: 0.9em;
+    color: #ccc;
+    margin-top: 5px;
+}
+
+.queue-info {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(255, 0, 51, 0.1);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 0, 51, 0.3);
+}
+
+/* Download Section */
+.download-container {
+    text-align: center;
+}
+
+.success-animation {
+    font-size: 4em;
+    margin-bottom: 20px;
+    animation: bounce 2s infinite;
+}
+
+.whatsapp-group {
+    margin-top: 30px;
+    padding: 20px;
+    background: rgba(0, 255, 0, 0.1);
+    border-radius: 10px;
+    border: 1px solid rgba(0, 255, 0, 0.3);
+}
+
+.whatsapp-group h3 {
+    color: #00ff00;
+    margin-bottom: 10px;
+}
+
+.whatsapp-btn {
+    display: inline-block;
+    background: #25D366;
+    color: white;
+    padding: 12px 25px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+}
+
+.whatsapp-btn:hover {
+    background: #128C7E;
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px rgba(37, 211, 102, 0.6);
+}
+
+/* Footer */
+.footer {
+    margin-top: 30px;
+    text-align: center;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.disclaimer {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(255, 0, 0, 0.1);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    font-size: 0.9em;
+    color: #ff6666;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .main-card {
+        padding: 20px;
+        margin: 10px;
+    }
+    
+    .glow-text {
+        font-size: 2em;
+    }
+    
+    .countdown-circle {
+        width: 150px;
+        height: 150px;
+    }
+}

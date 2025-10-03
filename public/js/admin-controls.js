@@ -317,3 +317,101 @@ class AdminControls {
 
 // Initialize admin controls
 const adminControls = new AdminControls();
+
+
+class AdminControls {
+    constructor() {
+        this.autoIncrementInterval = null;
+        this.stats = {
+            registeredUsers: 2847,
+            slotsLeft: 143,
+            registrationEndTime: Date.now() + (24 * 60 * 60 * 1000),
+            isRegistrationOpen: true
+        };
+        
+        // NEW: WebSocket client reference
+        this.realTimeClient = null;
+        
+        this.init();
+    }
+
+    init() {
+        this.updateAdminDisplay();
+        this.startLiveSync();
+        this.log('Admin panel initialized');
+        
+        // NEW: Wait for real-time client to be available
+        this.waitForRealTimeClient();
+    }
+
+    // NEW: Wait for real-time client
+    waitForRealTimeClient() {
+        if (window.realTimeClient) {
+            this.realTimeClient = window.realTimeClient;
+            this.log('Real-time WebSocket connected');
+        } else {
+            setTimeout(() => this.waitForRealTimeClient(), 100);
+        }
+    }
+
+    // NEW: Broadcast stats to all connected clients
+    broadcastStats() {
+        if (this.realTimeClient && this.realTimeClient.sendStatsUpdate) {
+            this.realTimeClient.sendStatsUpdate(this.stats);
+        }
+    }
+
+    // MODIFIED: Add broadcast to existing methods
+    setRegisteredUsers() {
+        const newValue = parseInt(document.getElementById('setRegistered').value);
+        if (!isNaN(newValue)) {
+            const oldValue = this.stats.registeredUsers;
+            this.stats.registeredUsers = newValue;
+            this.log(`Changed registered users from ${oldValue} to ${newValue}`);
+            this.updateAdminDisplay();
+            this.broadcastStats(); // NEW: Broadcast changes
+        }
+    }
+
+    setSlotsRemaining() {
+        const newValue = parseInt(document.getElementById('setSlots').value);
+        if (!isNaN(newValue)) {
+            const oldValue = this.stats.slotsLeft;
+            this.stats.slotsLeft = newValue;
+            this.log(`Changed slots remaining from ${oldValue} to ${newValue}`);
+            this.updateAdminDisplay();
+            this.broadcastStats(); // NEW: Broadcast changes
+        }
+    }
+
+    incrementUsers(count) {
+        this.stats.registeredUsers += count;
+        this.stats.slotsLeft = Math.max(0, this.stats.slotsLeft - count);
+        this.log(`Added ${count} new users (simulated registration)`);
+        this.updateAdminDisplay();
+        this.broadcastStats(); // NEW: Broadcast changes
+    }
+
+    setTimer() {
+        const hours = parseInt(document.getElementById('setHours').value);
+        if (!isNaN(hours)) {
+            this.stats.registrationEndTime = Date.now() + (hours * 60 * 60 * 1000);
+            this.log(`Set registration timer to ${hours} hours`);
+            this.updateAdminDisplay();
+            this.broadcastStats(); // NEW: Broadcast changes
+        }
+    }
+
+    // ADD this method to handle incoming real-time updates
+    updateFromServer(stats) {
+        this.stats = { ...this.stats, ...stats };
+        this.updateAdminDisplay();
+        this.log('Stats updated from server');
+    }
+}
+
+// Initialize admin controls
+const adminControls = new AdminControls();
+
+// NEW: Make it globally accessible for real-time client
+window.adminControls = adminControls;

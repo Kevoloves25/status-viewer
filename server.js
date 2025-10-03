@@ -98,3 +98,22 @@ app.listen(PORT, () => {
     console.log(`🚀 StatusBoost Pro running on port ${PORT}`);
     console.log(`🔥 Visit: http://localhost:${PORT}`);
 });
+
+
+
+// Add this to your existing server.js routes
+
+// Admin data endpoint (for potential future backend integration)
+app.get('/api/admin/stats', (req, res) => {
+    const users = JSON.parse(fs.readFileSync('./data/users.json', 'utf8'));
+    res.json({
+        totalUsers: users.length,
+        last24Hours: users.filter(u => Date.now() - u.timestamp < 24 * 60 * 60 * 1000).length,
+        activeRegistrations: users.length
+    });
+});
+
+// Serve admin panel
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});

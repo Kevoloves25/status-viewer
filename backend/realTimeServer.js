@@ -4,6 +4,32 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 
+class AdminRealTimeClient extends RealTimeClient {
+    constructor() {
+        super();
+        this.isAdmin = true;
+    }
+
+    // NEW: Send stats updates to server
+    sendStatsUpdate(newStats) {
+        this.send({
+            type: 'ADMIN_UPDATE',
+            data: newStats
+        });
+    }
+
+    // NEW: Update admin controls when stats change
+    updateFrontend(stats) {
+        super.updateFrontend(stats);
+        
+        // Update admin panel if exists
+        if (window.adminControls) {
+            window.adminControls.updateFromServer(stats);
+        }
+    }
+}
+
+
 class RealTimeServer {
     constructor(port = 3000) {
         this.port = port;
